@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string
 import os
+import json
 from google.cloud import secretmanager
 
 app = Flask(__name__)
@@ -8,19 +9,23 @@ app = Flask(__name__)
 def load_secret(secret_name):
     client = secretmanager.SecretManagerServiceClient()
     secret = client.access_secret_version(request={"name": secret_name}).payload.data.decode("UTF-8")
-    return json.loads(secret)
+    
+    try:
+        return json.loads(secret)  # Intenta cargarlo como JSON
+    except json.JSONDecodeError:
+        return {"mensaje": secret}  # Si falla, devuelve el secreto como string en un diccionario
 
 secreto = load_secret("projects/488709866434/secrets/test-base-secret/versions/latest")
 
-
 @app.route('/')
 def mostrar_contenido():
-    dia = os.getenv('DIA')
-    mes = os.getenv('MES')
-    año = os.getenv('AÑO')
-    secreto_dia = secreto.get('DIA_SECRETO')
-    secreto_mes = secreto.get('MES_SECRETO')
-    secreto_año = secreto.get('AÑO_SECRETO')
+    dia = os.getenv('DIA', 'No definido')
+    mes = os.getenv('MES', 'No definido')
+    año = os.getenv('AÑO', 'No definido')
+    
+    secreto_dia = secreto.get('DIA_SECRETO', 'No definido')
+    secreto_mes = secreto.get('MES_SECRETO', 'No definido')
+    secreto_año = secreto.get('AÑO_SECRETO', 'No definido')
     
     contenido = f"""
     <h1>Contenido de las Variables de Entorno</h1>
