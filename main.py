@@ -10,7 +10,7 @@ def load_secret(secret_name):
     secret = client.access_secret_version(request={"name": secret_name}).payload.data.decode("UTF-8")
     return json.loads(secret)
 
-secreto = load_secret("projects/488709866434/secrets/test-base-secret/versions/2")
+secreto = load_secret("projects/488709866434/secrets/test-base-secret/versions/latest")
 
 
 @app.route('/')
