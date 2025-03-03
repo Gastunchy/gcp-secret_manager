@@ -18,4 +18,4 @@ def mostrar_contenido():
     return render_template_string(contenido)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8080)
