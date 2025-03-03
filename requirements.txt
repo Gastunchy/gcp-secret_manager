@@ -1,2 +1,1 @@
 Flask==2.0.2
-google-cloud-secret-manager==2.7.2
