@@ -1,40 +1,29 @@
 from flask import Flask, render_template_string
-import os
 import json
 from google.cloud import secretmanager
 
 app = Flask(__name__)
 
-# Función para cargar el secreto desde Google Secret Manager
-def load_secret(secret_name):
+def load_secret():
+    """Carga el secreto desde Google Secret Manager."""
     client = secretmanager.SecretManagerServiceClient()
-    secret = client.access_secret_version(request={"name": secret_name}).payload.data.decode("UTF-8")
-    
+    secret_name = "projects/488709866434/secrets/test-base-secret/versions/latest"
     try:
-        return json.loads(secret)  # Intenta cargarlo como JSON
-    except json.JSONDecodeError:
-        return {"mensaje": secret}  # Si falla, devuelve el secreto como string en un diccionario
+        secret = client.access_secret_version(request={"name": secret_name}).payload.data.decode("UTF-8")
+        return json.loads(secret)  # Retorna como diccionario
+    except Exception:
+        return {}  # Devuelve un diccionario vacío si falla
 
-secreto = load_secret("projects/488709866434/secrets/test-base-secret/versions/latest")
+secreto = load_secret()
 
 @app.route('/')
 def mostrar_contenido():
-    dia = os.getenv('DIA', 'No definido')
-    mes = os.getenv('MES', 'No definido')
-    año = os.getenv('AÑO', 'No definido')
-    
-    secreto_dia = secreto.get('DIA_SECRETO', 'No definido')
-    secreto_mes = secreto.get('MES_SECRETO', 'No definido')
-    secreto_año = secreto.get('AÑO_SECRETO', 'No definido')
-    
+    """Muestra los valores del secreto en una página HTML simple."""
     contenido = f"""
-    <h1>Contenido de las Variables de Entorno</h1>
-    <p>Día: {dia}</p>
-    <p>Mes: {mes}</p>
-    <p>Año: {año}</p>
-    <p>Dia del secreto: {secreto_dia}</p>
-    <p>Mes del secreto: {secreto_mes}</p>
-    <p>Año del secreto: {secreto_año}</p>
+    <h1>Contenido del Secreto</h1>
+    <p>Día: {secreto.get('DIA_SECRETO', 'No definido')}</p>
+    <p>Mes: {secreto.get('MES_SECRETO', 'No definido')}</p>
+    <p>Año: {secreto.get('AÑO_SECRETO', 'No definido')}</p>
     """
     return render_template_string(contenido)
 
