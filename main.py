@@ -8,7 +8,7 @@ app = Flask(__name__)
 def access_secret():
     try:
         client = secretmanager.SecretManagerServiceClient()
-        secret_name = "projects/970772571927/secrets/test-base-secret/versions/latest"
+        secret_name = "projects/488709866434/secrets/test-base-secret/versions/lates"
         secret = client.access_secret_version(request={"name": secret_name}).payload.data.decode("UTF-8")
         return jsonify({"secret": secret})
     except Exception as e:
